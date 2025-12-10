@@ -1,85 +1,93 @@
-// js/admin.js
+// ... (ส่วน Monitor และ Manage PC เดิม) ...
 
-// --- 1. DASHBOARD (MONITOR) ---
-function renderMonitor() {
-    const grid = document.getElementById('monitorGrid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    
-    DB.getPCs().forEach(p => {
-        let color = p.status === 'in_use' ? 'in_use' : (p.status === 'available' ? 'available' : 'maintenance');
-        let userTxt = p.currentUser ? `<small class="d-block mt-2 bg-dark bg-opacity-25 px-1 rounded">${p.currentUser}</small>` : '';
-        let btn = p.status === 'in_use' ? `<button onclick="forceOut(${p.id})" class="btn btn-light btn-sm text-danger fw-bold mt-2 w-100">Force Out</button>` : '';
-        
-        grid.innerHTML += `
-        <div class="col-6 col-md-3">
-            <div class="pc-box ${color} p-3 mb-3">
-                <h4 class="m-0">${p.name}</h4>
-                <span class="badge mt-1 bg-white text-dark">${p.status}</span>
-                ${userTxt} ${btn}
-            </div>
-        </div>`;
-    });
-}
+// --- 3. MANAGE SOFTWARE LOGIC (อัปเดตใหม่ รองรับ Modal) ---
+let softModalInstance; // ตัวแปรเก็บ Modal Instance
 
-function forceOut(id) {
-    if(confirm('ยืนยันบังคับออกจากระบบ?')) {
-        updatePCStatus(id, 'available');
-        renderMonitor();
-    }
-}
-
-// --- 2. MANAGE PC ---
-function renderPCTable() {
-    const tb = document.getElementById('pcTable');
+function renderSoftTable() {
+    const tb = document.getElementById('softTable');
     if(!tb) return;
     tb.innerHTML = '';
     
-    DB.getPCs().forEach(p => {
+    DB.getSoft().forEach(s => {
         tb.innerHTML += `
         <tr>
-            <td>${p.id}</td>
-            <td><b>${p.name}</b></td>
-            <td><span class="badge bg-secondary">${p.status}</span></td>
+            <td>${s.id}</td>
+            <td>${s.name}</td>
+            <td>${s.version}</td>
             <td>
-                <button onclick="delPC(${p.id})" class="btn btn-sm btn-outline-danger">ลบ</button>
+                <button onclick="openSoftModal(${s.id})" class="btn btn-sm btn-warning">แก้ไข</button>
+                <button onclick="delSoft(${s.id})" class="btn btn-sm btn-outline-danger">ลบ</button>
             </td>
         </tr>`;
     });
 }
 
-function addPC() {
-    const name = prompt("ชื่อเครื่องใหม่ (เช่น PC-05):");
-    if(name) {
-        let pcs = DB.getPCs();
-        pcs.push({ id: Date.now(), name, status: 'available' });
-        DB.savePCs(pcs);
-        renderPCTable();
+function openSoftModal(id = null) {
+    // กำหนดค่าลงในฟอร์ม
+    const title = document.getElementById('softModalTitle');
+    const inpId = document.getElementById('editSoftId');
+    const inpName = document.getElementById('inpSoftName');
+    const inpVer = document.getElementById('inpSoftVer');
+    
+    // ตรวจสอบว่าเปิด Modal ในหน้านี้ได้หรือไม่ (กัน Error หน้าอื่น)
+    const modalEl = document.getElementById('modalSoft');
+    if(!modalEl) return; 
+
+    if(id) {
+        // กรณีแก้ไข
+        const s = DB.getSoft().find(item => item.id == id);
+        if(s) {
+            title.innerText = 'แก้ไขซอฟต์แวร์';
+            inpId.value = s.id;
+            inpName.value = s.name;
+            inpVer.value = s.version;
+        }
+    } else {
+        // กรณีเพิ่มใหม่
+        title.innerText = 'เพิ่มซอฟต์แวร์ใหม่';
+        inpId.value = '';
+        inpName.value = '';
+        inpVer.value = '';
     }
+
+    // เปิด Modal ด้วย Bootstrap API
+    softModalInstance = new bootstrap.Modal(modalEl);
+    softModalInstance.show();
 }
 
-function delPC(id) {
-    if(confirm('ลบเครื่องนี้?')) {
-        let pcs = DB.getPCs().filter(p => p.id != id);
-        DB.savePCs(pcs);
-        renderPCTable();
+function saveSoft() {
+    const id = document.getElementById('editSoftId').value;
+    const name = document.getElementById('inpSoftName').value;
+    const ver = document.getElementById('inpSoftVer').value;
+
+    if(!name) return alert('กรุณากรอกชื่อซอฟต์แวร์');
+
+    let softs = DB.getSoft();
+    
+    if(id) {
+        // แก้ไขข้อมูลเดิม
+        let s = softs.find(item => item.id == id);
+        if(s) {
+            s.name = name;
+            s.version = ver;
+        }
+    } else {
+        // เพิ่มข้อมูลใหม่
+        const newId = softs.length > 0 ? Math.max(...softs.map(s => s.id)) + 1 : 1;
+        softs.push({ id: newId, name: name, version: ver });
     }
+
+    DB.saveSoft(softs);
+    
+    // ปิด Modal และรีโหลดตาราง
+    if(softModalInstance) softModalInstance.hide();
+    renderSoftTable();
 }
 
-// --- 3. CONFIG ---
-function loadConfig() {
-    const c = DB.getData('ck_config', { name: '', announce: '' });
-    if(c && document.getElementById('confName')) {
-        document.getElementById('confName').value = c.name;
-        document.getElementById('confAnnounce').value = c.announce;
+function delSoft(id) {
+    if(confirm('ยืนยันการลบซอฟต์แวร์นี้?')) {
+        let softs = DB.getSoft().filter(s => s.id != id);
+        DB.saveSoft(softs);
+        renderSoftTable();
     }
-}
-
-function saveConfig() {
-    const data = {
-        name: document.getElementById('confName').value,
-        announce: document.getElementById('confAnnounce').value
-    };
-    DB.setData('ck_config', data);
-    alert('บันทึกการตั้งค่าเรียบร้อย');
 }

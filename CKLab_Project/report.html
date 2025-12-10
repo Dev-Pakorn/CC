@@ -2,14 +2,18 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Reports</title>
+    <title>Reports - CKLab Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
     <link href="css/admin.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark px-3"><a class="navbar-brand" href="#">🛠️ CKLab Admin</a> <button onclick="logout()" class="btn btn-sm btn-outline-danger">Logout</button></nav>
+    <nav class="navbar navbar-dark bg-dark px-3 sticky-top">
+        <a class="navbar-brand" href="dashboard.html">🛠️ CKLab Admin</a>
+        <button onclick="logout()" class="btn btn-sm btn-outline-danger">Logout</button>
+    </nav>
+
     <div class="container-fluid py-4">
         <div class="row g-4">
             <div class="col-md-2">
@@ -17,26 +21,86 @@
                     <a href="dashboard.html" class="nav-link mb-2">📊 1. Monitor</a>
                     <a href="manage_pc.html" class="nav-link mb-2">🖥️ 2. Manage PC</a>
                     <a href="manage_soft.html" class="nav-link mb-2">💾 3. Manage Software</a>
-                    <a href="report.html" class="nav-link active mb-2">📈 4. Reports</a>
-                    <a href="config.html" class="nav-link mb-2">⚙️ 5. Configure</a>
+                    <a href="report.html" class="nav-link active mb-2">📈 4. Reports</a> <a href="config.html" class="nav-link mb-2">⚙️ 5. Configure</a>
                 </div>
             </div>
+
             <div class="col-md-10">
                 <div class="card card-dashboard p-4">
-                    <h4>📈 สถิติการใช้งาน</h4>
-                    <div style="height:300px;" class="mb-4"><canvas id="chart"></canvas></div>
-                    <h5>📜 Logs (50 รายการล่าสุด)</h5>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped">
-                            <thead class="table-dark"><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>คณะ</th></tr></thead>
-                            <tbody id="logBody"></tbody>
+                    <h4 class="mb-4 text-primary">📈 สถิติและการใช้งาน</h4>
+                    
+                    <div class="row g-2 mb-4 bg-light p-3 rounded mx-0 border">
+                        <div class="col-md-2">
+                            <small class="text-muted">วันที่เริ่ม</small>
+                            <input type="date" id="dStart" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">วันที่สิ้นสุด</small>
+                            <input type="date" id="dEnd" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">คณะ/หน่วยงาน</small>
+                            <select id="filterFac" class="form-select form-select-sm">
+                                <option value="">ทั้งหมด</option>
+                                <option value="คณะวิศวกรรมศาสตร์">คณะวิศวกรรมศาสตร์</option>
+                                <option value="คณะวิทยาศาสตร์">คณะวิทยาศาสตร์</option>
+                                <option value="คณะเกษตรศาสตร์">คณะเกษตรศาสตร์</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">ประเภท</small>
+                            <select id="filterType" class="form-select form-select-sm">
+                                <option value="">ทั้งหมด</option>
+                                <option value="internal">ผู้ใช้ภายใน</option>
+                                <option value="external">บุคคลทั่วไป</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">ชั้นปี</small>
+                            <select id="filterYear" class="form-select form-select-sm">
+                                <option value="">ทั้งหมด</option>
+                                <option value="1">ปี 1</option>
+                                <option value="2">ปี 2</option>
+                                <option value="3">ปี 3</option>
+                                <option value="4">ปี 4</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button onclick="renderReport()" class="btn btn-primary btn-sm w-100">🔍</button>
+                        </div>
+                    </div>
+
+                    <div style="height: 350px;" class="mb-4">
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="m-0">📜 ประวัติการใช้งาน (History Log)</h5>
+                        <button onclick="exportCSV()" class="btn btn-success btn-sm">📥 Export CSV</button>
+                    </div>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm table-striped table-bordered">
+                            <thead class="table-dark" style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>เวลา</th>
+                                    <th>ผู้ใช้งาน</th>
+                                    <th>การกระทำ</th>
+                                    <th>เครื่อง</th>
+                                    <th>คณะ/หน่วยงาน</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logTableBody"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="js/mock-db.js"></script><script src="js/auth.js"></script><script src="js/report.js"></script>
+
+    <script src="js/mock-db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/report.js"></script>
     <script>requireAuth();</script>
 </body>
 </html>
