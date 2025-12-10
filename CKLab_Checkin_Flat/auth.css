@@ -1,0 +1,89 @@
+/* auth.css */
+
+/* จัดกึ่งกลางหน้าจอ */
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #212529; /* สีพื้นหลัง Dark Mode */
+    margin: 0;
+    font-family: 'Sarabun', sans-serif;
+}
+
+/* การ์ด Login */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); /* เงานุ่มลึก */
+    animation: fadeInDown 0.5s ease-out;
+}
+
+/* หัวข้อ */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h3 {
+    color: #333;
+    font-weight: 700;
+    margin: 0;
+}
+
+.login-header p {
+    color: #6c757d;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+/* ปรับแต่ง Input Fields */
+.form-floating > .form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+}
+
+.form-floating > .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* ปุ่ม Login */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    background-color: #0d6efd;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btn-login:hover {
+    background-color: #0b5ed7;
+}
+
+/* ข้อความ Error */
+#errorMsg {
+    color: #dc3545;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 10px;
+    display: none; /* ซ่อนไว้ก่อน */
+}
+
+/* Animation */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
