@@ -1,0 +1,16 @@
+/* css/auth.css */
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #212529;
+}
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}

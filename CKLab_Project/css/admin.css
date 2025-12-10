@@ -1,0 +1,15 @@
+/* css/admin.css */
+.card-dashboard { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.pc-box {
+    height: 120px;
+    border-radius: 10px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    color: white; font-weight: bold;
+    transition: transform 0.2s;
+}
+.pc-box:hover { transform: translateY(-5px); }
+.pc-box.available { background: #198754; }
+.pc-box.in_use { background: #dc3545; animation: pulse 2s infinite; }
+.pc-box.maintenance { background: #6c757d; }
+@keyframes pulse { 0% {opacity:1;} 50% {opacity:0.8;} 100% {opacity:1;} }
