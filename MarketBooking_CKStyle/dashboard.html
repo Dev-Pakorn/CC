@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="main.css" rel="stylesheet">
+    <link href="admin.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    
+    <!-- Login Screen -->
+    <div id="loginOverlay">
+        <div class="card p-4 text-center shadow-lg" style="width: 350px;">
+            <h3 class="mb-3">🔐 Admin Login</h3>
+            <div class="mb-2"><input type="text" id="loginUser" class="form-control" placeholder="Username (admin)"></div>
+            <div class="mb-3"><input type="password" id="loginPass" class="form-control" placeholder="Password (1234)"></div>
+            <button onclick="checkLogin()" class="btn btn-primary w-100">เข้าสู่ระบบ</button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark px-3 sticky-top">
+        <a class="navbar-brand" href="#">🛠️ CKLab Admin Panel</a>
+        <button class="btn btn-sm btn-outline-danger" onclick="location.reload()">Logout</button>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="nav flex-column nav-pills card-dashboard bg-white p-3" id="v-pills-tab" role="tablist">
+                    <button class="nav-link active mb-2 text-start" data-bs-toggle="pill" data-bs-target="#flow1" onclick="renderMonitor()">📊 1. Monitor</button>
+                    <button class="nav-link mb-2 text-start" data-bs-toggle="pill" data-bs-target="#flow2" onclick="renderPCList()">🖥️ 2. Manage PC</button>
+                    <button class="nav-link mb-2 text-start" data-bs-toggle="pill" data-bs-target="#flow3" onclick="renderSoftList()">💾 3. Manage Software</button>
+                    <button class="nav-link mb-2 text-start" data-bs-toggle="pill" data-bs-target="#flow4" onclick="renderReport()">📈 4. Reports</button>
+                    <button class="nav-link mb-2 text-start" data-bs-toggle="pill" data-bs-target="#flow5" onclick="loadConfig()">⚙️ 5. Configure</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="col-md-10">
+                <div class="tab-content" id="v-pills-tabContent">
+                    <!-- Flow 1: Monitor -->
+                    <div class="tab-pane fade show active" id="flow1">
+                        <div class="card card-dashboard p-4">
+                            <h4 class="mb-4 border-bottom pb-2">🔴 Real-time Dashboard</h4>
+                            <div class="row g-3" id="monitorGrid"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flow 2: Manage PC -->
+                    <div class="tab-pane fade" id="flow2">
+                        <div class="card card-dashboard p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4>🖥️ จัดการเครื่องคอมพิวเตอร์</h4>
+                                <button class="btn btn-success" onclick="openPCModal()">+ เพิ่มเครื่อง</button>
+                            </div>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>ID</th><th>ชื่อเครื่อง</th><th>สถานะ</th><th>Software</th><th>จัดการ</th></tr></thead>
+                                <tbody id="pcTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Flow 3: Manage Software -->
+                    <div class="tab-pane fade" id="flow3">
+                        <div class="card card-dashboard p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4>💾 จัดการซอฟต์แวร์</h4>
+                                <button class="btn btn-success" onclick="openSoftModal()">+ เพิ่ม Software</button>
+                            </div>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>ID</th><th>ชื่อโปรแกรม</th><th>เวอร์ชัน</th><th>จัดการ</th></tr></thead>
+                                <tbody id="softTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Flow 4: Report -->
+                    <div class="tab-pane fade" id="flow4">
+                        <div class="card card-dashboard p-4">
+                            <h4 class="mb-4">📈 รายงานสถิติ</h4>
+                            <!-- Filter UI -->
+                            <div class="row g-2 mb-4 bg-light p-3 rounded mx-1">
+                                <div class="col-md-2"><small>เริ่มต้น</small><input type="date" id="dStart" class="form-control form-control-sm"></div>
+                                <div class="col-md-2"><small>สิ้นสุด</small><input type="date" id="dEnd" class="form-control form-control-sm"></div>
+                                <div class="col-md-3">
+                                    <small>คณะ/หน่วยงาน</small>
+                                    <select id="filterFac" class="form-select form-select-sm">
+                                        <option value="">ทั้งหมด</option>
+                                        <option value="คณะวิศวกรรมศาสตร์">คณะวิศวกรรมศาสตร์</option>
+                                        <option value="คณะวิทยาศาสตร์">คณะวิทยาศาสตร์</option>
+                                        <!-- เพิ่มรายชื่อคณะอื่นๆ ตามที่เคยทำไว้ -->
+                                    </select>
+                                </div>
+                                <div class="col-md-2"><small>ประเภท</small><select id="filterType" class="form-select form-select-sm"><option value="">ทั้งหมด</option><option value="internal">ภายใน</option><option value="external">ภายนอก</option></select></div>
+                                <div class="col-md-2"><small>ชั้นปี</small><select id="filterYear" class="form-select form-select-sm"><option value="">ทั้งหมด</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+                                <div class="col-md-1 d-flex align-items-end"><button onclick="renderReport()" class="btn btn-primary btn-sm w-100">🔍</button></div>
+                            </div>
+                            <div style="height:300px; margin-bottom: 30px;"><canvas id="chart"></canvas></div>
+                            <h5 class="mb-3">📜 ประวัติการใช้งาน</h5>
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                <table class="table table-bordered table-sm table-striped">
+                                    <thead class="table-dark text-center" style="position: sticky; top: 0;"><tr><th>เวลา</th><th>ผู้ใช้</th><th>สถานะ</th><th>เครื่อง</th><th>คณะ</th></tr></thead>
+                                    <tbody id="logTableBody"></tbody>
+                                </table>
+                            </div>
+                            <hr>
+                            <button onclick="realExportCSV()" class="btn btn-outline-success">📥 Export CSV</button>
+                        </div>
+                    </div>
+
+                    <!-- Flow 5: Config -->
+                    <div class="tab-pane fade" id="flow5">
+                        <div class="card card-dashboard p-4">
+                            <h4 class="mb-4">⚙️ ตั้งค่าระบบ</h4>
+                            <div class="mb-3"><label>ชื่อห้องปฏิบัติการ</label><input type="text" id="confName" class="form-control"></div>
+                            <div class="mb-3"><label>ข้อความประกาศ</label><textarea id="confAnnounce" class="form-control" rows="3"></textarea></div>
+                            <button onclick="saveConfig()" class="btn btn-primary">💾 บันทึก</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="modalPC" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="pcModalTitle">จัดการเครื่อง</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPcId">
+                    <div class="mb-3"><label>ชื่อเครื่อง</label><input type="text" id="inpPcName" class="form-control"></div>
+                    <div class="mb-3"><label>สถานะ</label><select id="inpPcStatus" class="form-select"><option value="available">Available</option><option value="in_use">In-use</option><option value="maintenance">Maintenance</option><option value="reserved">Reserved</option></select></div>
+                    <div class="mb-3"><label>Software</label><div id="pcSoftList" class="border p-2 rounded" style="max-height: 150px; overflow-y: auto;"></div></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button onclick="savePC()" class="btn btn-primary">บันทึก</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalSoft" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="softModalTitle">จัดการซอฟต์แวร์</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><input type="hidden" id="editSoftId"><div class="mb-3"><label>ชื่อโปรแกรม</label><input type="text" id="inpSoftName" class="form-control"></div><div class="mb-3"><label>เวอร์ชัน</label><input type="text" id="inpSoftVer" class="form-control"></div></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button><button onclick="saveSoft()" class="btn btn-primary">บันทึก</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="mock-db.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
