@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Check-in</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/user.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card kiosk-card">
+            <div class="kiosk-header bg-success"><h4>📝 ยืนยันข้อมูล</h4></div>
+            <div class="card-body p-4">
+                <div class="alert alert-light border">
+                    สวัสดี: <strong id="showName">...</strong><br>
+                    <small id="showFac" class="text-muted">...</small>
+                </div>
+                
+                <label class="form-label fw-bold">รูปแบบการใช้งาน</label>
+                <select id="bookingType" class="form-select mb-4">
+                    <option value="walk_in">Walk-in (ใช้งานทันที)</option>
+                    <option value="booking">Booking (จองล่วงหน้า)</option>
+                </select>
+
+                <div class="d-flex gap-2">
+                    <a href="index.html" class="btn btn-outline-secondary w-50">ยกเลิก</a>
+                    <button onclick="confirmStart()" class="btn btn-success w-50">เริ่มใช้งาน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mock-db.js"></script>
+    <script src="js/user.js"></script>
+    <script>loadConfirmPage();</script>
+</body>
+</html>

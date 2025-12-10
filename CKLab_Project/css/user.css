@@ -1,0 +1,12 @@
+/* css/user.css */
+.kiosk-card {
+    max-width: 500px;
+    margin: 2rem auto;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    background: white;
+}
+.kiosk-header { background: #0d6efd; color: white; padding: 20px; text-align: center; }
+.simulation-bar { background: #333; color: white; padding: 5px; text-align: center; font-size: 0.9rem; }
